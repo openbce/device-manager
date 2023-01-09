@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: bce-device-manager
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      name: bce-device-manager
+  template:
+    metadata:
+      labels:
+        name: bce-device-manager
+    spec:
+      priorityClassName: system-node-critical
+      hostNetwork: true
+      containers:
+        - image: openbce/bce-device-manager:v0.1
+          name: device-manager
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
